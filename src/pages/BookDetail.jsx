@@ -19,6 +19,7 @@ export default function BookDetail() {
       //   console.log(doc);
       if (doc.exists()) {
         let book = { id: doc.id, ...doc.data() };
+        console.log(id);
         setBook(book);
         setLoading(false);
         setError("");

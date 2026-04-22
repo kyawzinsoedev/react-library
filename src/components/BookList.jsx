@@ -12,6 +12,7 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import trash from "../assets/trash.svg";
+import pencil from "../assets/pencil.svg";
 
 export default function BookList() {
   let location = useLocation();
@@ -84,8 +85,14 @@ export default function BookList() {
                         </span>
                       ))}
                     </div>
-                    <div onClick={(e) => deleteBook(e, b.id)}>
-                      <img src={trash}></img>
+                    <div className="flex items-center space-x-5">
+                      <Link to={`edit/${b.id}`}>
+                        <img src={pencil}></img>
+                      </Link>
+                      <img
+                        src={trash}
+                        onClick={(e) => deleteBook(e, b.id)}
+                      ></img>
                     </div>
                   </div>
                 </div>

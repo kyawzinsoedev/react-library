@@ -1,18 +1,50 @@
 import React, { useEffect, useState } from "react";
-import useFetch from "../hooks/useFetch";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useTheme from "../hooks/useTheme";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../firebase";
 
 export default function Create() {
+  let { id } = useParams();
+
   let [title, setTitle] = useState("");
   let [description, setDescription] = useState("");
   let [newCategory, setNewCategory] = useState("");
   let [categories, setCategories] = useState([]);
+  let [isEdit, setIsEdit] = useState(false);
 
-  // let { setPostData, data: book } = useFetch('http://localhost:3000/books', "POST");
+  useEffect(() => {
+    //edit form
+    if (id) {
+      setIsEdit(true);
+      let ref = doc(db, "books", id);
+      getDoc(ref).then((doc) => {
+        if (doc.exists()) {
+          let { title, description, categories } = doc.data();
+          setTitle(title);
+          setDescription(description);
+          setCategories(categories);
+        }
+      });
+    }
+    //create form
+    else {
+      setIsEdit(false);
+      setTitle("");
+      setDescription("");
+      setCategories([]);
+    }
+  }, []);
+
   let navigate = useNavigate();
+
   let addCategory = (e) => {
     if (newCategory && categories.includes(newCategory)) {
       setNewCategory("");
@@ -22,7 +54,7 @@ export default function Create() {
     setNewCategory("");
   };
 
-  let addBook = (e) => {
+  let submitForm = async (e) => {
     e.preventDefault();
     let data = {
       title,
@@ -30,23 +62,21 @@ export default function Create() {
       categories,
       date: serverTimestamp(),
     };
-    // setPostData(data);
-    let ref = collection(db, "books");
-    addDoc(ref, data);
+    if (isEdit) {
+      let ref = doc(db, "books", id);
+      await updateDoc(ref, data);
+    } else {
+      let ref = collection(db, "books");
+      await addDoc(ref, data);
+    }
     navigate("/");
   };
-
-  //   useEffect(() => {
-  //     if (book) {
-  //       navigate("/");
-  //     }
-  //   }, [book]);
 
   let { isDark } = useTheme();
 
   return (
     <div className="h-screen">
-      <form className="w-full max-w-lg mx-auto mt-5" onSubmit={addBook}>
+      <form className="w-full max-w-lg mx-auto mt-5" onSubmit={submitForm}>
         <div className="flex flex-wrap -mx-3 mb-6">
           <div className="w-full px-3">
             <label
@@ -150,7 +180,9 @@ export default function Create() {
               d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <span className="hidden md:block">Create book</span>
+          <span className="hidden md:block">
+            {isEdit ? "Update" : "Create"} book
+          </span>
         </button>
       </form>
     </div>

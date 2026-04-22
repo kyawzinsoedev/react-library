@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import useTheme from "../hooks/useTheme";
 import lightIcon from "../assets/light.svg";
 import darkIcon from "../assets/dark.svg";
+import useSignout from "../hooks/useSignout";
 
 export default function Navbar() {
   let [search, setSearch] = useState("");
@@ -10,6 +11,11 @@ export default function Navbar() {
 
   let handleSearch = (e) => {
     navigate("/?search=" + search);
+  };
+  let { logout } = useSignout();
+  let signOutUser = async (e) => {
+    await logout();
+    navigate("/login");
   };
 
   let { isDark, changeTheme } = useTheme();
@@ -120,6 +126,14 @@ export default function Navbar() {
                 onClick={() => changeTheme("dark")}
               />
             )}
+          </div>
+          <div>
+            <button
+              onClick={signOutUser}
+              className="bg-red-500 p-2 text-sm rounded-lg text-white"
+            >
+              Logout
+            </button>
           </div>
         </li>
       </ul>

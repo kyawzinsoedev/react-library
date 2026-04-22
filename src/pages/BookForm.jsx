@@ -6,6 +6,7 @@ import {
   collection,
   doc,
   getDoc,
+  onSnapshot,
   serverTimestamp,
   updateDoc,
 } from "firebase/firestore";
@@ -25,7 +26,8 @@ export default function Create() {
     if (id) {
       setIsEdit(true);
       let ref = doc(db, "books", id);
-      getDoc(ref).then((doc) => {
+      // getDoc(ref).then();
+      onSnapshot(ref, (doc) => {
         if (doc.exists()) {
           let { title, description, categories } = doc.data();
           setTitle(title);

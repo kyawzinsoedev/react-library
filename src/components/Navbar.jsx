@@ -149,7 +149,6 @@ export default function Navbar() {
                 </Link>
               </>
             )}
-            {/* logout commit backs */}
             {!!user && (
               <button
                 onClick={signOutUser}

@@ -135,6 +135,7 @@ export default function Navbar() {
           <div className="space-x-3">
             {!user && (
               <>
+                {/* login commit backs */}
                 <Link
                   to={`/login`}
                   className="border-2 border-primary  rounded-lg px-2 py-2 text-sm"

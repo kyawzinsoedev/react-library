@@ -1,16 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useTheme from "../hooks/useTheme";
-import {
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  onSnapshot,
-  serverTimestamp,
-  updateDoc,
-} from "firebase/firestore";
+import { doc, getDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
+import useFirestore from "../hooks/useFirestore";
 
 export default function Create() {
   let { id } = useParams();
@@ -21,13 +14,14 @@ export default function Create() {
   let [categories, setCategories] = useState([]);
   let [isEdit, setIsEdit] = useState(false);
 
+  let { updateDocument, addCollection } = useFirestore();
+
   useEffect(() => {
     //edit form
     if (id) {
       setIsEdit(true);
       let ref = doc(db, "books", id);
-      // getDoc(ref).then();
-      onSnapshot(ref, (doc) => {
+      getDoc(ref).then((doc) => {
         if (doc.exists()) {
           let { title, description, categories } = doc.data();
           setTitle(title);
@@ -46,7 +40,6 @@ export default function Create() {
   }, []);
 
   let navigate = useNavigate();
-
   let addCategory = (e) => {
     if (newCategory && categories.includes(newCategory)) {
       setNewCategory("");
@@ -62,14 +55,11 @@ export default function Create() {
       title,
       description,
       categories,
-      date: serverTimestamp(),
     };
     if (isEdit) {
-      let ref = doc(db, "books", id);
-      await updateDoc(ref, data);
+      await updateDocument("books", id, data);
     } else {
-      let ref = collection(db, "books");
-      await addDoc(ref, data);
+      await addCollection("books", data);
     }
     navigate("/");
   };

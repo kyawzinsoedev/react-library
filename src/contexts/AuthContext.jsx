@@ -22,16 +22,18 @@ export default function AuthContextProvider({ children }) {
     user: null,
     authReady: false,
   });
+
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       dispatch({ type: "AUTH_READY" });
       if (user) {
-        dispatch({ type: "LOGIN_IN", payload: user });
+        dispatch({ type: "LOG_IN", payload: user });
       } else {
-        dispatch({ type: "LOGIN_OUT" });
+        dispatch({ type: "LOG_OUT" });
       }
     });
   }, []);
+
   return <AuthContext.Provider value={state}>{children}</AuthContext.Provider>;
 }
 

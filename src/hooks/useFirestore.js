@@ -8,36 +8,46 @@ import {
   query,
   serverTimestamp,
   updateDoc,
+  where,
 } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { db } from "../firebase";
 
 export default function useFirestore() {
-  let getCollection = (colName) => {
+  let getCollection = (colName, _q) => {
+    let qRef = useRef(_q).current;
     let [error, setError] = useState("");
     let [data, setData] = useState([]);
     let [loading, setLoading] = useState(false);
 
-    useEffect(function () {
-      setLoading(true);
-      let ref = collection(db, colName);
-      let q = query(ref, orderBy("date", "desc"));
-      onSnapshot(q, (docs) => {
-        if (docs.empty) {
-          setError("no documents found");
-          setLoading(false);
-        } else {
-          let collectionDatas = [];
-          docs.forEach((doc) => {
-            let document = { id: doc.id, ...doc.data() };
-            collectionDatas.push(document);
-          });
-          setData(collectionDatas);
-          setLoading(false);
-          setError("");
+    useEffect(
+      function () {
+        setLoading(true);
+        let ref = collection(db, colName);
+        let qureires = [];
+        if (qRef) {
+          qureires.push(where(...qRef));
         }
-      });
-    }, []);
+        qureires.push(orderBy("date", "desc")); //uid asc , date desc -> index
+        let q = query(ref, ...qureires);
+        onSnapshot(q, (docs) => {
+          if (docs.empty) {
+            setError("no documents found");
+            setLoading(false);
+          } else {
+            let collectionDatas = [];
+            docs.forEach((doc) => {
+              let document = { id: doc.id, ...doc.data() };
+              collectionDatas.push(document);
+            });
+            setData(collectionDatas);
+            setLoading(false);
+            setError("");
+          }
+        });
+      },
+      [qRef],
+    );
 
     return { error, data, loading };
   };

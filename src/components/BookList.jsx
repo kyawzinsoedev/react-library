@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import book from "../assets/book.png";
 import { Link, useLocation } from "react-router-dom";
 import useTheme from "../hooks/useTheme";
@@ -6,20 +6,25 @@ import { db } from "../firebase";
 import trash from "../assets/trash.svg";
 import pencil from "../assets/pencil.svg";
 import useFirestore from "../hooks/useFirestore";
+import { AuthContext } from "../contexts/AuthContext";
 
 export default function BookList() {
   let location = useLocation();
   let params = new URLSearchParams(location.search);
   let search = params.get("search");
 
-  let { getCollection } = useFirestore();
+  let { getCollection, deleteDocument } = useFirestore();
 
-  let { error, data: books, loading } = getCollection("books");
+  let { user } = useContext(AuthContext);
+  let {
+    error,
+    data: books,
+    loading,
+  } = getCollection("books", ["uid", "==", user.uid]);
 
   let deleteBook = async (e, id) => {
     e.preventDefault();
-    let ref = doc(db, "books", id);
-    await deleteDoc(ref); //backend delete
+    await deleteDocument("books", id);
   };
 
   if (error) {

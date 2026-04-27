@@ -32,6 +32,7 @@ export default function useFirestore() {
         let q = query(ref, ...qureires);
         onSnapshot(q, (docs) => {
           if (docs.empty) {
+            setData([]);
             setError("no documents found");
             setLoading(false);
           } else {

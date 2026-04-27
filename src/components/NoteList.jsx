@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import useFirestore from "../hooks/useFirestore";
 import { useParams } from "react-router-dom";
 import moment from "moment";
 import trash from "../assets/trash.svg";
 import pencil from "../assets/pencil.svg";
 import { Link, useLocation } from "react-router-dom";
+import NoteForm from "./NoteForm";
 
 export default function NoteList() {
   let { id } = useParams();
@@ -19,7 +20,12 @@ export default function NoteList() {
   let deleteNote = async (e, id) => {
     await deleteDocument("notes", id);
   };
-  console.log(notes);
+
+  let [editNote, setEditnote] = useState(null);
+  //   if (editNote) {
+  //     console.log("edit note id = " + editNote.id);
+  //   }
+  //   console.log(notes);
   return (
     <>
       {loading && <div>Loading...</div>}
@@ -44,11 +50,18 @@ export default function NoteList() {
               </div>
             </div>
             <div className="flex justify-between">
-              <div className="mt-3">{note.body}</div>
+              <div className="mt-3">
+                {editNote?.id !== note.id && note.body}
+                {editNote?.id === note.id && (
+                  <NoteForm
+                    type="update"
+                    setEditnote={setEditnote}
+                    editNote={editNote}
+                  />
+                )}
+              </div>
               <div className="flex space-x-4 items-center">
-                <Link to={`/edit/${note.id}`}>
-                  <img src={pencil} alt="" />
-                </Link>
+                <img onClick={() => setEditnote(note)} src={pencil} alt="" />
                 <img
                   className="cursor-pointer"
                   src={trash}
